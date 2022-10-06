@@ -87,14 +87,14 @@ func (usecase ExpenseUsecase) UpdateExpense(context *contexts.Context, expenseId
 	// Add back the expenseId to the Entity
 	updatedExpense.Id = expenseId
 
-	// Inject expense into DB
-	insertedExpense, err := usecase.repository.ExpenseRepository.AddExpense(context, *updatedExpense)
+	// Update expense in the DB
+	updatedExpense, err = usecase.repository.ExpenseRepository.ModifyExpense(context, *updatedExpense)
 	if err != nil {
 		return nil, err
 	}
 
 	// Map expense to DTO
-	expenseDTO, err := mappers.ToExpenseDTO(*insertedExpense)
+	expenseDTO, err := mappers.ToExpenseDTO(*updatedExpense)
 	if err != nil {
 		return nil, err
 	}
