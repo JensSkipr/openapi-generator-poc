@@ -1,0 +1,42 @@
+schema:
+    enums:
+        ExpenseCategory:
+            - SERVICE
+            - PRODUCT
+            - PROVIDER
+        ReviewStatus:
+            - PENDING
+            - APPROVED
+            - REFUSED
+            - INFO_REQUIRED
+        RefundStatus:
+            - PENDING
+            - ACCEPTED
+            - REFUSED
+    models:
+        Expense:
+            properties:
+                id:
+                    type: id
+                createdAt:
+                    type: createdAt
+                modifiedAt:
+                    type: modifiedAt
+                totalAmount:
+                    type: int
+                categorization:
+                    type: enum
+                    ref: ExpenseCategory
+                    default: SERVICE
+                programId:
+                    type: uuid
+                expenseAt:
+                    type: datetime
+                reviewStatus:
+                    type: enum
+                    ref: ReviewStatus
+                    default: PENDING
+                refundStatus:
+                    type: enum
+                    ref: RefundStatus
+                    default: PENDING

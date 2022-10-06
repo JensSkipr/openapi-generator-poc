@@ -1,0 +1,191 @@
+openapi: 3.0.1
+info:
+    title: Protected API
+    version: v1
+paths:
+    /expenses:
+        get:
+            tags:
+                - Expenses
+            operationId: GetExpenses
+            responses:
+                "200":
+                    description: Success
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    $ref: "#/components/schemas/ExpenseDTO"
+        post:
+            tags:
+                - Expenses
+            operationId: CreateExpense
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/CreateExpenseDTO"
+            responses:
+                "200":
+                    description: Success
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ExpenseDTO"
+    /expenses/{expenseId}:
+        get:
+            tags:
+                - Expenses
+            operationId: GetExpense
+            parameters:
+                - name: expenseId
+                  in: path
+                  required: true
+                  schema:
+                      type: string
+                      format: uuid
+            responses:
+                "200":
+                    description: Success
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ExpenseDTO"
+        put:
+            tags:
+                - Expenses
+            operationId: UpdateExpense
+            parameters:
+                - name: expenseId
+                  in: path
+                  required: true
+                  schema:
+                      type: string
+                      format: uuid
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/UpdateExpenseDTO"
+            responses:
+                "200":
+                    description: Success
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ExpenseDTO"
+components:
+    securitySchemes:
+        oauth2:
+            type: http
+            scheme: bearer
+    schemas:
+        ExpenseCategory:
+            type: string
+            enum:
+                - SERVICE
+                - PRODUCT
+                - PROVIDER
+        ReviewStatus:
+            type: string
+            enum:
+                - PENDING
+                - APPROVED
+                - REFUSED
+                - INFO_REQUIRED
+        RefundStatus:
+            type: string
+            enum:
+                - PENDING
+                - ACCEPTED
+                - REFUSED
+        CreateExpenseDTO:
+            type: object
+            required:
+                - categorization
+                - programId
+                - expenseAt
+                - totalAmount
+            properties:
+                categorization:
+                    $ref: "#/components/schemas/ExpenseCategory"
+                programId:
+                    type: string
+                    format: uuid
+                    description: The ID of the allocated program
+                expenseAt:
+                    description: The date of the expense
+                    type: string
+                    format: date-time
+                totalAmount:
+                    description: The total amount
+                    type: number
+        UpdateExpenseDTO:
+            type: object
+            required:
+                - categorization
+                - programId
+                - expenseAt
+                - reviewStatus
+                - totalAmount
+                - refundStatus
+            properties:
+                categorization:
+                    $ref: "#/components/schemas/ExpenseCategory"
+                programId:
+                    type: string
+                    format: uuid
+                    description: The ID of the allocated program
+                expenseAt:
+                    description: The date of the expense
+                    type: string
+                    format: date-time
+                totalAmount:
+                    description: The total amount
+                    type: number
+                reviewStatus:
+                    $ref: "#/components/schemas/ReviewStatus"
+                refundStatus:
+                    $ref: "#/components/schemas/RefundStatus"
+        ExpenseDTO:
+            type: object
+            required:
+                - id
+                - createdAt
+                - modifiedAt
+                - categorization
+                - programId
+                - expenseAt
+                - reviewStatus
+                - refundStatus
+                - totalAmount
+            properties:
+                id:
+                    type: string
+                    format: uuid
+                createdAt:
+                    description: The creation date of the expense
+                    type: string
+                    format: date-time
+                modifiedAt:
+                    description: The modification date of the expense
+                    type: string
+                    format: date-time
+                categorization:
+                    $ref: "#/components/schemas/ExpenseCategory"
+                programId:
+                    type: string
+                    format: uuid
+                    description: The ID of the allocated program
+                expenseAt:
+                    description: The date of the expense
+                    type: string
+                    format: date-time
+                totalAmount:
+                    description: The total amount
+                    type: number
+                reviewStatus:
+                    $ref: "#/components/schemas/ReviewStatus"
+                refundStatus:
+                    $ref: "#/components/schemas/RefundStatus"
