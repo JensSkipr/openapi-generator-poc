@@ -79,6 +79,11 @@ func (usecase ExpenseUsecase) GetExpense(context *contexts.Context, id uuid.UUID
 		return nil, err
 	}
 
+	// We don't let the user ask for an expense that has a parent
+	if expense.ParentExpenseId != nil {
+		return nil, errors.New(NOT_ALLOWED + "expense_has_parent")
+	}
+
 	// Map expense to DTO
 	expenseDTO, err := mappers.ToExpenseDTO(*expense)
 	if err != nil {
@@ -99,6 +104,11 @@ func (usecase ExpenseUsecase) UpdateExpense(context *contexts.Context, expenseId
 	existingExpense, err := usecase.repository.ExpenseRepository.GetExpenseById(context, expenseId)
 	if err != nil {
 		return nil, err
+	}
+
+	// We don't let the user ask for an expense that has a parent
+	if existingExpense.ParentExpenseId != nil {
+		return nil, errors.New(NOT_ALLOWED + "expense_has_parent")
 	}
 
 	// We will create a copy and link it to the master expense
