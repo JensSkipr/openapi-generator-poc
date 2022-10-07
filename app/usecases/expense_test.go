@@ -4,8 +4,12 @@ import (
 	"testing"
 
 	"github.com/bxcodec/faker/v3"
+	"github.com/google/go-cmp/cmp"
+	"github.com/google/go-cmp/cmp/cmpopts"
+	"github.com/nightborn-be/blink/skipr-test/app/controllers/contracts"
 	"github.com/nightborn-be/blink/skipr-test/app/database/models"
 	"github.com/nightborn-be/blink/skipr-test/app/usecases/entities"
+	"github.com/nightborn-be/blink/skipr-test/app/usecases/mappers"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
@@ -47,7 +51,6 @@ func Test_GetExpenseLogs_Success(t *testing.T) {
 	context := createContext("")
 
 	expense1 := setupExpenseMock(t)
-	expense1.RefundStatus = entities.REFUND_STATUS_ACCEPTED
 	if err := db.Create(&expense1).Error; err != nil {
 		t.Fatal(err)
 	}
@@ -96,4 +99,55 @@ func Test_GetExpenseLogs_Success(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Len(t, result, 6)
+}
+
+func Test_UpdateExpense_Success(t *testing.T) {
+	usecase, db, err := setupTestUsecase()
+	if err != nil {
+		t.Fatal(err)
+	}
+	context := createContext("")
+
+	expense1 := setupExpenseMock(t)
+	if err := db.Create(&expense1).Error; err != nil {
+		t.Fatal(err)
+	}
+
+	newRefundStatus, err := mappers.ToExpenseRefundStatusDTO(entities.REFUND_STATUS_PENDING)
+	assert.Nil(t, err)
+
+	expenseCategory, err := mappers.ToExpenseCategoryDTO(expense1.Categorization)
+	assert.Nil(t, err)
+
+	reviewStatus, err := mappers.ToExpenseReviewStatusDTO(expense1.ReviewStatus)
+	assert.Nil(t, err)
+
+	updateExpenseDTO := contracts.UpdateExpenseDTO{
+		Categorization: *expenseCategory,
+		ExpenseAt:      expense1.ExpenseAt,
+		ProgramId:      expense1.ProgramId,
+		RefundStatus:   *newRefundStatus,
+		ReviewStatus:   *reviewStatus,
+		TotalAmount:    666,
+	}
+
+	result, err := usecase.ExpenseUsecase.UpdateExpense(&context, expense1.Id, updateExpenseDTO)
+	assert.Nil(t, err)
+
+	expenctedDTO := contracts.ExpenseDTO{
+		Categorization: *expenseCategory,
+		CreatedAt:      expense1.CreatedAt,
+		ExpenseAt:      expense1.ExpenseAt,
+		Id:             expense1.Id,
+		ProgramId:      expense1.ProgramId,
+		RefundStatus:   *newRefundStatus,
+		ReviewStatus:   *reviewStatus,
+		TotalAmount:    updateExpenseDTO.TotalAmount,
+	}
+
+	assert.Empty(t, cmp.Diff(expenctedDTO, *result, cmpopts.IgnoreFields(contracts.ExpenseDTO{}, "ModifiedAt")))
+
+	logs, err := usecase.ExpenseUsecase.GetExpenseLogs(&context, expense1.Id,  nil, nil, lo.ToPtr(0),lo.ToPtr(""), lo.ToPtr(10))
+	assert.Nil(t, err)
+	assert.Len(t, logs, 2)
 }

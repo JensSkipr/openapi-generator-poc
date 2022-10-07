@@ -105,11 +105,14 @@ func (usecase ExpenseUsecase) UpdateExpense(context *contexts.Context, expenseId
 	if err != nil {
 		return nil, err
 	}
-
+	
 	// We don't let the user ask for an expense that has a parent
 	if existingExpense.ParentExpenseId != nil {
 		return nil, errors.New(NOT_ALLOWED + "expense_has_parent")
 	}
+
+	// Add back the creation date to the Entity
+	updatedExpense.CreatedAt = existingExpense.CreatedAt
 
 	// We will create a copy and link it to the master expense
 	existingExpense.ParentExpenseId = &existingExpense.Id
