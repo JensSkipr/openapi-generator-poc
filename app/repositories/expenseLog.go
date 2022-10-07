@@ -29,7 +29,7 @@ func (repository ExpenseLogRepository) GetAllExpenseLogsByParentId(context *cont
 
 	// Temporality
 	if dateFrom != nil && dateTo != nil {
-		query = query.Where("created_at =< ? and created at >= ?", dateTo, dateFrom)
+		query = query.Where("expense_logs.created_at <= ? and expense_logs.created_at >= ?", dateTo, dateFrom)
 	}
 
 	// Paging
