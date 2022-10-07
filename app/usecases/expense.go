@@ -224,7 +224,7 @@ func (usecase ExpenseUsecase) logUpdateFields(context *contexts.Context, action 
 			Role:   entities.USER_ROLE_EMPLOYEE,
 			// --- END
 			Field:     newExpenseValue.Type().Field(i).Name,
-			ExpenseId: newExpense.Id,
+			ExpenseId: existingExpense.Id,
 			OldValue:  oldValue,
 			NewValue:  newValue,
 		}

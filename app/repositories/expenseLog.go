@@ -23,7 +23,9 @@ func (repository ExpenseLogRepository) GetAllExpenseLogsByParentId(context *cont
 	query := db
 
 	// Filtering
-	query = query.Where("expense_id = ?", id)
+	query = query.
+		Model(&models.ExpenseLog{}).
+		Joins("JOIN expenses on expenses.parent_expense_id = ? and expenses.id = expense_logs.expense_id", id)
 
 	// Temporality
 	if dateFrom != nil && dateTo != nil {

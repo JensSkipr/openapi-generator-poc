@@ -1,6 +1,7 @@
 package usecases
 
 import (
+	"github.com/nightborn-be/blink/skipr-test/app/contexts"
 	"github.com/nightborn-be/blink/skipr-test/app/database"
 	"github.com/nightborn-be/blink/skipr-test/app/gateways"
 	"github.com/nightborn-be/blink/skipr-test/app/repositories"
@@ -27,15 +28,15 @@ func setupTestUsecase() (*Usecase, *gorm.DB, error) {
 	return lo.ToPtr(Initialise(&testRepository, &testGateway)), db, nil
 }
 
-// func createContext(sub string) contexts.Context {
-// 	return contexts.Context{
-// 		ContextBase: contexts.ContextBase{
-//			Sub:    &sub,
-//			Roles:  nil,
-//			TestId: nil,
-//		},
-//	}
-// }
+func createContext(sub string) contexts.Context {
+	return contexts.Context{
+		ContextBase: contexts.ContextBase{
+			Sub:    &sub,
+			Roles:  nil,
+			TestId: nil,
+		},
+	}
+}
 
 // func createAdminContext(sub string) contexts.Context {
 //	return contexts.Context{
