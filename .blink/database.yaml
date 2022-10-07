@@ -13,6 +13,13 @@ schema:
             - PENDING
             - ACCEPTED
             - REFUSED
+        UserRole:
+            - ADMIN
+            - OPERATOR
+            - REVIEWER
+            - EMPLOYEE
+        ExpenseLogAction:
+            - EDIT_EXPENSE
     models:
         Expense:
             properties:
@@ -40,3 +47,40 @@ schema:
                     type: enum
                     ref: RefundStatus
                     default: PENDING
+                parentExpenseId:
+                    type: foreignKey
+                    ref: Expense
+                    field: id
+                    nullable: true
+                    foreignKeyName: ParentExpense
+        ExpenseLog:
+            properties:
+                id:
+                    type: id
+                createdAt:
+                    type: createdAt
+                modifiedAt:
+                    type: modifiedAt
+                author:
+                    type: string
+                field:
+                    type: string
+                oldValue:
+                    type: string
+                    nullable: true
+                newValue:
+                    type: string
+                    nullable: true
+                role:
+                    type: enum
+                    ref: UserRole
+                    default: EMPLOYEE
+                action:
+                    type: enum
+                    ref: ExpenseLogAction
+                    default: EDIT_EXPENSE
+                expenseId:
+                    type: foreignKey
+                    ref: Expense
+                    field: id
+                    foreignKeyName: Expense

@@ -1,12 +1,16 @@
 package usecases
 
 import (
+	"errors"
+	"time"
+
 	"github.com/google/uuid"
 	"github.com/nightborn-be/blink/skipr-test/app/contexts"
 	"github.com/nightborn-be/blink/skipr-test/app/controllers/contracts"
 	"github.com/nightborn-be/blink/skipr-test/app/gateways"
 	"github.com/nightborn-be/blink/skipr-test/app/repositories"
 	"github.com/nightborn-be/blink/skipr-test/app/usecases/mappers"
+	"github.com/nightborn-be/blink/skipr-test/app/utils"
 )
 
 type ExpenseUsecase struct {
@@ -21,10 +25,13 @@ func InitialiseExpenseUsecase(repository *repositories.Repository, gateway *gate
 	}
 }
 
-func (usecase ExpenseUsecase) GetExpenses(context *contexts.Context) ([]contracts.ExpenseDTO, error) {
+func (usecase ExpenseUsecase) GetExpenses(context *contexts.Context, page *int, q *string, size *int) ([]contracts.ExpenseDTO, error) {
+
+	// Paging parsing
+	page, size = utils.ConvertQueryPaging(page, size)
 
 	// Get the expenses from the database
-	expenses, err := usecase.repository.ExpenseRepository.GetAllExpenses(context, nil, nil, nil)
+	expenses, err := usecase.repository.ExpenseRepository.GetAllExpensesWithoutParentExpenseId(context, page, size, q)
 	if err != nil {
 		return nil, err
 	}
@@ -100,4 +107,42 @@ func (usecase ExpenseUsecase) UpdateExpense(context *contexts.Context, expenseId
 	}
 
 	return expenseDTO, nil
+}
+
+func (usecase ExpenseUsecase) GetExpenseLogs(context *contexts.Context, expenseId uuid.UUID, dateFrom *time.Time, dateTo *time.Time, page *int, q *string, size *int) ([]contracts.ExpenseLogDTO, error) {
+
+	// Paging parsing
+	page, size = utils.ConvertQueryPaging(page, size)
+
+	// Check dateFrom should be before dateTo
+	if dateFrom != nil && dateTo != nil {
+		if dateFrom.After(*dateTo) {
+			return nil, errors.New(INCORRECT_PARAMETERS + "dateFrom, dateTo")
+		}
+	}
+
+	// Check expense exists
+	expense, err := usecase.repository.ExpenseRepository.GetExpenseById(context, expenseId)
+	if err != nil {
+		return nil, err
+	}
+
+	// We don't let the user ask for an expense that has a parent
+	if expense.ParentExpenseId != nil {
+		return nil, errors.New(NOT_ALLOWED + "expense_has_parent")
+	}
+
+	// Get expense logs
+	logs, err := usecase.repository.ExpenseLogRepository.GetAllExpenseLogsByParentId(context, expenseId, page, size, q, dateFrom, dateTo)
+	if err != nil {
+		return nil, err
+	}
+
+	// Map to DTOs
+	logDTOs, err := mappers.ToExpenseLogDTOs(logs)
+	if err != nil {
+		return nil, err
+	}
+
+	return logDTOs, nil
 }

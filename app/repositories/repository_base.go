@@ -3,4 +3,5 @@ package repositories
 
 type RepositoryBase struct {
 ExpenseRepository IExpenseRepository
+ExpenseLogRepository IExpenseLogRepository
 }

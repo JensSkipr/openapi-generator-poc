@@ -8,6 +8,28 @@ paths:
             tags:
                 - Expenses
             operationId: GetExpenses
+            parameters:
+                - name: q
+                  description: The search string
+                  in: query
+                  required: false
+                  schema:
+                      type: string
+                      nullable: true
+                - name: page
+                  in: query
+                  required: false
+                  schema:
+                      type: integer
+                      format: int64
+                      default: -1
+                - name: size
+                  in: query
+                  required: false
+                  schema:
+                      type: integer
+                      format: int64
+                      default: -1
             responses:
                 "200":
                     description: Success
@@ -75,6 +97,61 @@ paths:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/ExpenseDTO"
+    /expenses/{expenseId}/logs:
+        get:
+            tags:
+                - Expenses
+            operationId: GetExpenseLogs
+            parameters:
+                - name: expenseId
+                  in: path
+                  required: true
+                  schema:
+                      type: string
+                      format: uuid
+                - name: q
+                  description: The search string
+                  in: query
+                  required: false
+                  schema:
+                      type: string
+                      nullable: true
+                - name: page
+                  in: query
+                  required: false
+                  schema:
+                      type: integer
+                      format: int64
+                      default: -1
+                - name: size
+                  in: query
+                  required: false
+                  schema:
+                      type: integer
+                      format: int64
+                      default: -1
+                - name: date_from
+                  in: query
+                  required: false
+                  schema:
+                      type: string
+                      format: date-time
+                - name: date_to
+                  in: query
+                  required: false
+                  schema:
+                      type: string
+                      format: date-time
+            responses:
+                "200":
+                    description: Success
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                description: The array of structure
+                                items:
+                                    $ref: "#/components/schemas/ExpenseLogDTO"
 components:
     securitySchemes:
         oauth2:
@@ -100,6 +177,17 @@ components:
                 - PENDING
                 - ACCEPTED
                 - REFUSED
+        UserRole:
+            type: string
+            enum:
+                - ADMIN
+                - OPERATOR
+                - REVIEWER
+                - EMPLOYEE
+        ExpenseLogAction:
+            type: string
+            enum:
+                - EDIT_EXPENSE
         CreateExpenseDTO:
             type: object
             required:
@@ -189,3 +277,39 @@ components:
                     $ref: "#/components/schemas/ReviewStatus"
                 refundStatus:
                     $ref: "#/components/schemas/RefundStatus"
+        ExpenseLogDTO:
+            type: object
+            required:
+                - id
+                - createdAt
+                - modifiedAt
+                - author
+                - field
+                - role
+                - action
+                - expenseId
+            properties:
+                id:
+                    type: string
+                    format: uuid
+                createdAt:
+                    type: string
+                    format: date-time
+                modifiedAt:
+                    type: string
+                    format: date-time
+                author:
+                    type: string
+                field:
+                    type: string
+                oldValue:
+                    type: string
+                newValue:
+                    type: string
+                role:
+                    $ref: "#/components/schemas/UserRole"
+                action:
+                    $ref: "#/components/schemas/ExpenseLogAction"
+                expenseId:
+                    type: string
+                    format: uuid

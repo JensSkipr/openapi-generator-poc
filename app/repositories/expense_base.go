@@ -176,3 +176,68 @@ func (repository ExpenseRepository) ModifyExpense(context *contexts.Context, exp
 	return &expenseEntity, nil
 }
 
+
+
+/*
+	Get all expenses by parentExpenseId
+
+	ParentExpenseId - The parentExpenseId
+	page - The page number
+	size - The size of the page
+	q - The search query
+*/
+func (repository ExpenseRepository) GetAllExpensesByParentExpenseId(context *contexts.Context, parentExpenseId uuid.UUID, page *int, size *int, q *string) ([]entities.ExpenseEntity, error) {
+	// Get database
+	db, err := repository.getDB(context.TestId)
+	if err != nil {
+		return nil, err
+	}
+
+	var expenses []models.Expense
+
+	query := db.
+		// Get correct Expenses
+		Where("parent_expense_id = ?", parentExpenseId)
+
+	// Paging
+	if page != nil && size != nil {
+		query = query.Limit(*size).Offset(*page * *size)
+	}
+
+	
+
+	if err := query.Find(&expenses).Error; err != nil {
+		return nil, errors.New(UNABLE_TO_RETRIEVE_RESOURCE + "expenses")
+	}
+
+	expenseEntities := mappers.ToExpenseEntities(expenses)
+
+	return expenseEntities, nil
+}
+
+/*
+	Count the number of expenses
+
+	ParentExpenseId - The parentExpenseId
+*/
+func (repository ExpenseRepository) CountAllExpensesByParentExpenseId(context *contexts.Context, parentExpenseId uuid.UUID, q *string) (*int64, error) {
+	// Get database
+	db, err := repository.getDB(context.TestId)
+	if err != nil {
+		return nil, err
+	}
+
+	var count int64
+
+	query := db.Model(&models.Expense{}).
+		// Get correct projects
+		Where("parent_expense_id = ?", parentExpenseId)
+
+	
+
+	if err := query.Count(&count).Error; err != nil {
+		return nil, errors.New(UNABLE_TO_RETRIEVE_RESOURCE + "expenses")
+	}
+
+	return &count, nil
+}

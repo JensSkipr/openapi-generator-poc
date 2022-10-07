@@ -49,6 +49,7 @@ api.GET("/expenses", router.controller.ExpenseController.GetExpenses)
 api.POST("/expenses", router.controller.ExpenseController.CreateExpense)
 api.GET("/expenses/:expenseId", router.controller.ExpenseController.GetExpense)
 api.PUT("/expenses/:expenseId", router.controller.ExpenseController.UpdateExpense)
+api.GET("/expenses/:expenseId/logs", router.controller.ExpenseController.GetExpenseLogs)
 
 	// Runs the engine
 	if err := router.engine.Run(); err != nil {

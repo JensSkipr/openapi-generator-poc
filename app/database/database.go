@@ -51,7 +51,7 @@ func Initialise(config map[string]string) (*gorm.DB, error) {
 	}
 
 	// Migrate the schema
-	if err := db.AutoMigrate(models.Expense{}); err != nil {
+	if err := db.AutoMigrate(models.Expense{}, models.ExpenseLog{}); err != nil {
 		return nil, err
 	}
 
@@ -67,7 +67,7 @@ func InitialiseTest() (*gorm.DB, error) {
 	}
 
 	// Migrate the schema
-	if err := db.AutoMigrate(models.Expense{}); err != nil {
+	if err := db.AutoMigrate(models.Expense{}, models.ExpenseLog{}); err != nil {
 		return nil, err
 	}
 
@@ -86,7 +86,7 @@ func InitialiseTestFromTestId(testId string) (*gorm.DB, error) {
 	}
 
 	// Migrate the schema
-	if err := db.AutoMigrate(models.Expense{}); err != nil {
+	if err := db.AutoMigrate(models.Expense{}, models.ExpenseLog{}); err != nil {
 		return nil, err
 	}
 

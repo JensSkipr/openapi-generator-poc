@@ -14,5 +14,6 @@ type IExpenseRepositoryBase interface {
 	AddExpense(context *contexts.Context, expenseEntity entities.ExpenseEntity) (*entities.ExpenseEntity, error)
 	ModifyExpense(context *contexts.Context, expenseEntity entities.ExpenseEntity) (*entities.ExpenseEntity, error)
 	
-
+GetAllExpensesByParentExpenseId(context *contexts.Context, id uuid.UUID, page *int, size *int, q *string) ([]entities.ExpenseEntity, error)
+CountAllExpensesByParentExpenseId(context *contexts.Context, id uuid.UUID, q *string) (*int64, error)
 }

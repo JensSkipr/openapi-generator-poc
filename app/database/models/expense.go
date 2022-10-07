@@ -13,8 +13,12 @@ CreatedAt time.Time `gorm:"not null" faker:"utcTime"`
 ModifiedAt time.Time `gorm:"not null" faker:"utcTime"`
 Categorization entities.ExpenseCategory `gorm:"not null;default:SERVICE"`
 ExpenseAt time.Time `gorm:"not null" faker:"utcTime"`
+ParentExpenseId *uuid.UUID
 ProgramId uuid.UUID `gorm:"not null"`
 RefundStatus entities.RefundStatus `gorm:"not null;default:PENDING"`
 ReviewStatus entities.ReviewStatus `gorm:"not null;default:PENDING"`
 TotalAmount int `gorm:"not null"`
+
+// Foreign keys
+ParentExpenseFK *Expense `gorm:"foreignKey:parent_expense_id;references:id" faker:"-"`
 }

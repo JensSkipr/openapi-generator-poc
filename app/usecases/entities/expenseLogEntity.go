@@ -6,15 +6,15 @@ import (
 "time"
 )
 
-type ExpenseEntity struct {
+type ExpenseLogEntity struct {
 Id uuid.UUID
 CreatedAt time.Time
 ModifiedAt time.Time
-Categorization ExpenseCategory
-ExpenseAt time.Time
-ParentExpenseId *uuid.UUID
-ProgramId uuid.UUID
-RefundStatus RefundStatus
-ReviewStatus ReviewStatus
-TotalAmount int
+Action ExpenseLogAction
+Author string
+ExpenseId uuid.UUID
+Field string
+NewValue *string
+OldValue *string
+Role UserRole
 }

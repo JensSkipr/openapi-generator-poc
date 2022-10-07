@@ -1,0 +1,5 @@
+{
+	"yaml.schemas": {
+		"swaggerviewer:openapi": "file:///Users/maxime/Documents/nightborn/skipr/skipr-be-challenge/.blink/open-api.yaml"
+	}
+}
