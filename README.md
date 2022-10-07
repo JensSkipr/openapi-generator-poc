@@ -2,14 +2,42 @@
 
 ## Introduction
 
-Welcome on the GO starter pack of Nightborn.
+You need :
 
-We invite you to read the different documents to understand the go-way of programming at Nightborn.
+```
+NPX installed
+GO installed
+NPM installed
+NODE installed
+```
 
-## Documentation
+To run the example :
 
--   [1. Project Structure](docs/000_Structure.md)
--   [2. Project Installation](docs/001_Installation.md)
--   [3. Project Development](docs/002_Development.md)
--   [4. Project Testing](docs/003_Testing.md)
--   [5. Project Documentation](docs/004_Documentation.md)
+In 1 terminal do :
+```
+go run .
+```
+
+In another do :
+
+```
+chmod +x ./scripts/e2e.sh
+./scripts/e2e.sh
+```
+
+This will start the go back-end and run tests on it via a testID, 
+you'll have a new database with an unique guid available to verify the state of the database
+
+
+To work on the E2E : 
+
+```
+cd e2e
+npm i && npm run generate-api
+```
+
+When you're done coding you can go back to the root of the project and run the 
+
+```
+./scripts/e2e.sh
+```

@@ -20,7 +20,8 @@ func Initialise(db *gorm.DB) Repository {
 
 	return Repository{
 		RepositoryBase: RepositoryBase{
-			ExpenseRepository: InitialiseExpenseRepository(getDb),
+			ExpenseRepository:    InitialiseExpenseRepository(getDb),
+			ExpenseLogRepository: InitialiseExpenseLogRepository(getDb),
 		},
 	}
 }
@@ -33,7 +34,8 @@ func InitialiseTest(db *gorm.DB) Repository {
 
 	return Repository{
 		RepositoryBase: RepositoryBase{
-			ExpenseRepository: InitialiseExpenseRepository(getDb),
+			ExpenseRepository:    InitialiseExpenseRepository(getDb),
+			ExpenseLogRepository: InitialiseExpenseLogRepository(getDb),
 		},
 	}
 }

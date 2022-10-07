@@ -17,3 +17,7 @@ local.db
 .env
 .DS_Store
 __debug_bin
+
+*.db
+node_modules
+dist

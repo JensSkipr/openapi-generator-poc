@@ -1,0 +1,13 @@
+{
+  "scripts": {
+    "generate-api": "orval --config ./orval.config.js"
+  },
+  "dependencies": {
+    "axios": "^1.1.0",
+    "orval": "^6.10.2",
+    "uuidv4": "^6.2.13"
+  },
+  "devDependencies": {
+    "typescript": "^4.8.4"
+  }
+}

@@ -1,23 +1,22 @@
-name: Production deployment
+name: Go
 
 on:
-  push:
-    tags:
-      - prod_v*
+  pull_request:
+    branches: [master]
+
 jobs:
-  build-and-deploy:
+  build:
     runs-on: ubuntu-latest
     steps:
-      # checkout the repo
-      - name: "Checkout GitHub Action"
-        uses: actions/checkout@main
+      - uses: actions/checkout@v2
 
-      - name: "Build and push image"
-        uses: azure/docker-login@v1
+      - name: Set up Go
+        uses: actions/setup-go@v2
         with:
-          login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
-          username: ${{ secrets.REGISTRY_USERNAME }}
-          password: ${{ secrets.REGISTRY_PASSWORD }}
-      - run: |
-          docker build . -f build/Dockerfile -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/...
-          docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/...
+          go-version: 1.19
+
+      - name: Build
+        run: go build -v ./...
+
+      - name: Test
+        run: go test -v ./...

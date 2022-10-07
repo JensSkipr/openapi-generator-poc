@@ -2,6 +2,8 @@ package usecases
 
 import (
 	"errors"
+	"fmt"
+	"reflect"
 	"time"
 
 	"github.com/google/uuid"
@@ -9,8 +11,10 @@ import (
 	"github.com/nightborn-be/blink/skipr-test/app/controllers/contracts"
 	"github.com/nightborn-be/blink/skipr-test/app/gateways"
 	"github.com/nightborn-be/blink/skipr-test/app/repositories"
+	"github.com/nightborn-be/blink/skipr-test/app/usecases/entities"
 	"github.com/nightborn-be/blink/skipr-test/app/usecases/mappers"
 	"github.com/nightborn-be/blink/skipr-test/app/utils"
+	"github.com/samber/lo"
 )
 
 type ExpenseUsecase struct {
@@ -91,11 +95,32 @@ func (usecase ExpenseUsecase) UpdateExpense(context *contexts.Context, expenseId
 		return nil, err
 	}
 
+	// Get the expenses from the database
+	existingExpense, err := usecase.repository.ExpenseRepository.GetExpenseById(context, expenseId)
+	if err != nil {
+		return nil, err
+	}
+
+	// We will create a copy and link it to the master expense
+	existingExpense.ParentExpenseId = &existingExpense.Id
+
+	// Add the copy in the database
+	existingExpense, err = usecase.repository.ExpenseRepository.AddExpense(context, *existingExpense)
+	if err != nil {
+		return nil, err
+	}
+
 	// Add back the expenseId to the Entity
 	updatedExpense.Id = expenseId
 
 	// Update expense in the DB
 	updatedExpense, err = usecase.repository.ExpenseRepository.ModifyExpense(context, *updatedExpense)
+	if err != nil {
+		return nil, err
+	}
+
+	// Log every field changes
+	err = usecase.logUpdateFields(context, entities.EXPENSE_LOG_ACTION_EDIT_EXPENSE, *existingExpense, *updatedExpense)
 	if err != nil {
 		return nil, err
 	}
@@ -145,4 +170,59 @@ func (usecase ExpenseUsecase) GetExpenseLogs(context *contexts.Context, expenseI
 	}
 
 	return logDTOs, nil
+}
+
+func (usecase ExpenseUsecase) logUpdateFields(context *contexts.Context, action entities.ExpenseLogAction, existingExpense entities.ExpenseEntity, newExpense entities.ExpenseEntity) error {
+	// Get the reflect value of the expenses
+	existingExpenseValue := reflect.ValueOf(existingExpense)
+	newExpenseValue := reflect.ValueOf(newExpense)
+
+	for i := 0; i < newExpenseValue.NumField(); i++ {
+		// Get each field
+		fieldName := newExpenseValue.Type().Field(i).Name
+
+		// Don't add log for the basic fields
+		if lo.Contains([]string{"Id", "CreatedAt", "ModifiedAt", "ParentExpenseId"}, fieldName) {
+			continue
+		}
+
+		existingField := existingExpenseValue.Field(i)
+		newField := newExpenseValue.Field(i)
+
+		// Check the values change
+		if existingField.Interface() == newField.Interface() {
+			continue
+		}
+
+		// Get old and new value
+		var oldValue *string
+		if existingField.Type().Kind() != reflect.Ptr || !existingField.IsNil() {
+			oldValue = lo.ToPtr(fmt.Sprintf("%v", existingField))
+		}
+		var newValue *string
+		if newField.Type().Kind() != reflect.Ptr || !newField.IsNil() {
+			newValue = lo.ToPtr(fmt.Sprintf("%v", newField))
+		}
+
+		// Add a log if the value change
+		log := entities.ExpenseLogEntity{
+			Action: action,
+			// Should be replaced by the user retrieved by the sub
+			// Don't have this scope in my little repository...
+			// --- START
+			Author: "Maxime DENUIT",
+			Role:   entities.USER_ROLE_EMPLOYEE,
+			// --- END
+			Field:     newExpenseValue.Type().Field(i).Name,
+			ExpenseId: newExpense.Id,
+			OldValue:  oldValue,
+			NewValue:  newValue,
+		}
+		_, err := usecase.repository.ExpenseLogRepository.AddExpenseLog(context, log)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }

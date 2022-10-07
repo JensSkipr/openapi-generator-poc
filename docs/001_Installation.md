@@ -2,10 +2,9 @@
 
 ## Prerequisites
 
--   Go v1.17
+-   Go v1.19
 -   Docker
 -   Delve
--   Swagger
 -   ...
 
 ## Installation
