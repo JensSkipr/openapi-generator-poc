@@ -1,0 +1,9 @@
+additionalProperties:
+  packageName: dto
+  enumClassPrefix: "true"
+
+templateDir: /input/templates
+files:
+  routers.mustache:
+    templateType: API
+    destinationFilename: routers.go
